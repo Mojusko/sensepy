@@ -1,4 +1,4 @@
-# Stochastic Process Library for Python (stpy)
+# Point process sensing library (sensepy)
 
 ## Installation
 First clone the repository:
@@ -20,7 +20,7 @@ Copyright (c) 2021 Mojmir Mutny
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
-in the Software to use the Software but not distribute further. 
+in the Software to use the Software but not distribute further.
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
