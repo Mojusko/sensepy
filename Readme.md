@@ -15,6 +15,10 @@ The project requires Python 3.6+, and the dependencies should be installed with 
 
 ## Tutorials
 
+## Requires
+  - Classical: pytorch, cvxpy, numpy, scipy, sklearn, pymanopt, mosek, pandas
+  - Special: stpy (see: <>)
+
 ## Licence
 Copyright (c) 2021 Mojmir Mutny
 
