@@ -35,7 +35,10 @@ Inside the project directory, run
 The project requires Python 3.6+, and the dependencies should be installed with the package.
 
 ## Tutorials
-One can find two tutorials
+We provide 2 tutorials:
+
+1. Implementing sensing algorithms [Tutorial 1](https://github.com/Mojusko/sensepy/blob/master/sensepy/tutorial/implementing-sensing-algorithm.ipynb)
+2. Fitting custom Cox process with geopandas maps [Tutorial 2](https://github.com/Mojusko/sensepy/blob/master/sensepy/tutorial/custom-kernel-cox-process.ipynb)
 
 ## Dependencies
   - Classical: torch, cvxpy, numpy, scipy, sklearn, pymanopt, mosek, pandas, geopandas
