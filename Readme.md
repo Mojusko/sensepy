@@ -1,30 +1,59 @@
 # Point process sensing library (sensepy)
 
+This repository includes the code used in paper:
+
+`Mojmir Mutny & Andreas Krause, "Sensing Cox Processes via Posterior Sampling and Positive Bases", AISTATS 2022`
+
+For the paper see [here](https://mojmirmutny.github.io/#publications).
+
+**Abstract**
+ We study adaptive sensing of Cox point processes, a widely used model from spatial statistics. We introduce three tasks: maximization of captured events, search for the maximum of the intensity function and learning level sets of the intensity function. We model the intensity function as a sample from a truncated Gaussian process, represented in a specially constructed positive basis. In this basis, the positivity constraint on the intensity function has a simple form. We show how the \emph{minimal description positive basis} can be adapted to the covariance kernel, to non-stationarity and make connections to common positive bases from prior works. Our adaptive sensing algorithms use Langevin dynamics and are based on posterior sampling (\textsc{Cox-Thompson}) and top-two posterior sampling (\textsc{Top2}) principles. With latter, the difference between samples serves as a surrogate to the uncertainty. We demonstrate the approach using examples from environmental monitoring and crime rate modeling, and compare it to the classical Bayesian experimental design approach.
+
+
+This **library in this repository** implements algorithms:
+
+  - CaptureUCB [1]
+  - Cox-Thompson [2]
+  - V-optimal [2]
+  - A modified version of Grant et. al. (2019) algorithm [3]
+  - Top2 sampling [2]
+
+**References**
+
+1. Mutny M., Krause A., No-regret Algorithms for Capturing Events in Poisson Point Processes, ICML 2021
+2. Mutny M., Krause A., Sensing Cox Processes via Posterior Sampling and Positive Bases, AISTATS 2022
+3. Grant J. A. and Boukouvalas  A., and Griffiths R., Leslie D. Vakili S. and De Cote, Munoz, E. Adaptive sensor placement for continuous spaces. ICML 2019
 ## Installation
 First clone the repository:
 
-`git clone git@gitlab.inf.ethz.ch:mmutny/sensepy.git`
+`git clone `
 
 Inside the project directory, run
 
-`pip install -e .`
+`pip install .`
 
-The `-e` option installs the package in "editable" mode, where pip links to your local copy of the repository, instead of copying the files to the your site-packages directory. That way, a simple `git pull` will update the package.
-
-The project requires Python 3.6+, and the dependencies should be installed with the package (let me know if it doesn't work for you).
+The project requires Python 3.6+, and the dependencies should be installed with the package.
 
 ## Tutorials
+One can find two tutorials
 
-## Requires
-  - Classical: pytorch, cvxpy, numpy, scipy, sklearn, pymanopt, mosek, pandas
-  - Special: stpy (see: <>)
+## Dependencies
+  - Classical: torch, cvxpy, numpy, scipy, sklearn, pymanopt, mosek, pandas, geopandas
+
+  - 1. stpy (see: <https://github.com/Mojusko/stpy>)
+    2. pytorch-minimize <https://github.com/rfeinman/pytorch-minimize>
 
 ## Licence
-Copyright (c) 2021 Mojmir Mutny
+MIT License
+
+Copyright (c) 2022 Mojmir Mutny
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
-in the Software to use the Software but not distribute further.
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
@@ -37,5 +66,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+## Licence of datasets included
+
+Datasets included in this repository stems from:
+
+  1. **Taxi dataset** <https://www.kaggle.com/c/pkdd-15-predict-taxi-service-trajectory-i>
+  2. **Gorillas and Beilschmiedia dataset** <https://spatstat.org/>
+
+For licencing of the datasets, please refer to their original releases via the website above.
+
 ## Contributions
-Mojmir Mutny
+Mojmir Mutny, 2022

@@ -1,15 +1,37 @@
 import torch
+from typing import Callable, Type, Union, Tuple, List
 import numpy as np
 import matplotlib.pyplot as plt
 from stpy.borel_set import BorelSet,HierarchicalBorelSets
-from stpy.point_processes.poisson import PoissonPointProcess
+from stpy.point_processes.poisson.poisson import PoissonPointProcess
 from sensepy.sense import SensingAlgorithm
 import scipy.stats
 
 class GammaPriorThopsonSampling(SensingAlgorithm):
 
+	def __init__(self,
+				process: PoissonPointProcess,
+				basic_sets,
+				w,
+				initial_data =None,
+				dt: float=10.,
+				alpha: float =1.,
+				beta: float=1.,
+				topk: int =1):
+		"""
+		Implements the method of Grant (2019-2020) which uses Gamma prior for discretized subsets of Borelsets.
+		Implemented only for 1D intervals.
 
-	def __init__(self, process,basic_sets, w,initial_data = None, dt = 10., alpha = 1., beta = 1., topk =1):
+		:param process: poisson process implementing sample method
+		:param basic_sets: discretization of the domain to small sets
+		:param w:  cost function
+		:param initial_data: intiial data
+		:param dt: sensing duration
+		:param alpha: prior of gamma distribution params
+		:param beta:  prior of gamma distribution params
+		:param topk: as in constructor
+		"""
+		super().__init__(process, w, dt, topk)
 		self.process = process
 		self.dt = dt
 		self.w = w
@@ -47,26 +69,35 @@ class GammaPriorThopsonSampling(SensingAlgorithm):
 			self.betas[index] += arr.shape[0]
 
 
-	def fit_estimator(self):
+	def fit_estimator(self)->None:
 		pass
 
-	def add_data(self,new_data):
+	def add_data(self,
+				 new_data: Tuple[BorelSet,torch.Tensor,float]):
+		"""
+		Adds a data point
+		:param new_data:
+		:return:
+		"""
 		index = 0
 
 		for set in self.basic_sets:
 			if set.inside(new_data[0]):
 				break
 			index +=1
-		#print (new_data[0].bounds)
-		#print (self.basic_sets[index].bounds)
-		#print ('---------')
 		if new_data[1] is not None:
 			self.alphas[index] += new_data[1].size()[0]
 		self.betas[index] += 1
 
 		self.data.append(new_data)
 
-	def acquisition_function(self,actions):
+	def acquisition_function(self,actions: List):
+		"""
+		Calculate the acquisition function
+		:param actions:
+		:return:
+		"""
+
 		# decide whether explore or exploit
 		scores_basic = []
 		for id_region, region in enumerate(self.basic_sets):
@@ -82,59 +113,3 @@ class GammaPriorThopsonSampling(SensingAlgorithm):
 
 		return torch.Tensor(scores).double()
 
-
-
-
-if __name__ == "__main__":
-	d = 1
-	gamma = 0.1
-	n = 32
-	B = 4.
-	b = 1.
-
-	process = PoissonPointProcess(d=1, B=B, b=b)
-	Sets = []
-	levels = 4
-	hierarchical_structure = HierarchicalBorelSets(d=1, interval=(-1, 1), levels=levels)
-
-
-	Sets = hierarchical_structure.get_all_sets()
-	basic_sets = hierarchical_structure.get_sets_level(hierarchical_structure.levels)
-
-	D = BorelSet(1, bounds=torch.Tensor([[-1., 1.]]).double())
-
-	dt = 1.
-	vol = basic_sets[0].volume()
-
-	small_dt = 1.
-	sample_D = process.sample_discretized(D, small_dt)
-	data = []
-	data.append((D, sample_D, small_dt))
-
-	xtest = D.return_discretization(n=n)
-
-	# for j in data:
-	# 	if j[1] is not None:
-	# 		plt.plot(j[1], j[1] * 0, 'ko')
-	#
-	# process.visualize(D, samples=0, n=n, dt=1.)  # normalized to dt = 1
-
-	w = lambda s: s.volume() * B
-	Bandit = GammaPriorThopsonSampling(process, basic_sets, w, initial_data=data,alpha=dt*B*vol, beta=10, dt=dt)
-	T = 50
-	plt.ion()
-	rate = process.rate(xtest)
-
-	for t in range(T):
-
-		plt.clf()
-		plt.plot(xtest, rate, color='orange', label='rate', lw=3)
-		for index_set, set in enumerate(basic_sets):
-			xx = set.return_discretization(n)
-			r = process.rate_volume(set)
-			plt.plot(xx,Bandit.alphas[index_set]/Bandit.betas[index_set]/vol+xx*0,'--',color = 'k')
-			plt.plot(xx, r/vol + xx * 0, color = 'orange',lw = 3)
-
-		plt.draw()
-		plt.pause(0.5)
-		Bandit.step(basic_sets)

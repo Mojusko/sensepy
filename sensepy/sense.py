@@ -68,13 +68,11 @@ class SensingAlgorithm:
 
 	def step(self, actions: List,
 			 verbose: bool = False,
-			 index: bool = False,
 			 points: bool = False):
 		"""
 
 		:param actions:
-		:param verbose:
-		:param index:
+		:param verbose: levle of verbosity
 		:param points:
 		:return:
 		"""
@@ -139,8 +137,13 @@ class SensingAlgorithm:
 
 class EpsilonGreedySense(SensingAlgorithm):
 
-	def __init__(self, process: PoissonPointProcess, estimator: PoissonRateEstimator, w: Callable,
-				 initial_data: bool = None, epsilon: Callable = lambda t: 1. - 1. / np.sqrt(t), dt: float = 10.,
+	def __init__(self,
+				 process: PoissonPointProcess,
+				 estimator: PoissonRateEstimator,
+				 w: Callable,
+				 initial_data = None,
+				 epsilon: Callable = lambda t: 1. - 1. / np.sqrt(t), # eps-probability decay
+				 dt: float = 10.,
 				 topk: int = 1) ->None:
 		"""
 		Construct a class for Epsilon greedy algorithm
@@ -205,66 +208,3 @@ class EpsilonGreedySense(SensingAlgorithm):
 		self.estimator.add_data_point(data_point)
 		self.data.append(data_point)
 
-
-if __name__ == "__main__":
-	d = 1
-	gamma = 0.1
-	n = 32
-	B = 4.
-	b = 1.
-
-	process = PoissonPointProcess(d=1, B=B, b=b)
-	Sets = []
-	levels = 6
-	hierarchical_structure = HierarchicalBorelSets(d=1, interval=(-1, 1), levels=levels)
-	Sets = hierarchical_structure.get_all_sets()
-
-	D = BorelSet(1, bounds=torch.Tensor([[-1., 1.]]).double())
-
-	k = KernelFunction(gamma=gamma, kappa=B).kernel
-	estimator = PoissonRateEstimator(process, hierarchical_structure, kernel=k, B=B + b, b=b, m=100, jitter=10e-4)
-
-	min_vol, max_vol = estimator.get_min_max()
-	dt = (1 * b) / min_vol
-
-	small_dt = 1.
-	sample_D = process.sample_discretized(D, small_dt)
-	data = []
-	data.append((D, sample_D, small_dt))
-
-	estimator.load_data(data)
-	estimator.penalized_likelihood()
-	rate_mean = estimator.mean_rate(D, n=n)
-
-	xtest = D.return_discretization(n=n)
-	plt.plot(xtest, rate_mean, color='blue', label='likelihood - locations known')  # normalized to dt = 1
-
-	for j in data:
-		if j[1] is not None:
-			plt.plot(j[1], j[1] * 0, 'ko')
-
-	process.visualize(D, samples=0, n=n, dt=1.)  # normalized to dt = 1
-
-	w = lambda s: s.volume() * B
-	Bandit = EpsilonGreedySense(process, estimator, w, epsilon=0.5, initial_data=data, dt=dt)
-	T = 50
-	plt.ion()
-	rate = process.rate(xtest)
-
-	for t in range(T):
-		rate_mean = Bandit.estimator.mean_rate(D, n=n)
-		plt.clf()
-
-		# scores = Bandit.acquisition_function(Bandit.estimator.basic_sets)
-		#
-		# for index_set,score in enumerate(scores):
-		# 	xx = Bandit.estimator.basic_sets[index_set].return_discretization(n)
-		# 	plt.plot(xx,score+xx*0,'g')
-
-		plt.plot(xtest, rate_mean, color='blue', label='likelihood - locations known')  # normalized to dt = 1
-		plt.plot(xtest, rate, color='orange', label='rate', lw=3)
-
-		plt.draw()
-		plt.pause(0.5)
-
-		Bandit.step(Sets)

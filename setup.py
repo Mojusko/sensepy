@@ -8,9 +8,11 @@ packages = [
     'tensorflow',
     'cvxpy',
     'torch',
+    'geopandas',
     'pymanopt',
     'pandas',
     'mosek',
+    'stpy',
 ]
 #
 setup(name='sensepy',
@@ -19,7 +21,7 @@ setup(name='sensepy',
       url='',
       author='Mojmir Mutny',
       author_email='mojmir.mutny@inf.ethz.ch',
-      license='custom',
+      license='MIT licence',
       packages=['sensepy'],
 	    zip_safe=False,
       install_requires=packages)
